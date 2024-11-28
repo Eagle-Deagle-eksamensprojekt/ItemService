@@ -1,0 +1,43 @@
+name: .NET Core CI/CD
+
+on:
+  push:
+    branches: 
+      - "main"
+      - "developer"
+      - "feature/*"
+  pull_request:
+    branches: 
+      - "main"
+      - "developer"
+      - "feature/*"
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+
+        dotnet-version: '8.0.x'
+
+    - name: Install dependencies
+      run: dotnet restore
+
+    - name: Build the solution
+      run: dotnet build --no-restore --configuration Release
+
+    - name: Run tests
+      run: dotnet test --no-build --configuration Release --verbosity normal
+
+    - name: Upload build artifacts
+      if: success()
+      uses: actions/upload-artifact@v3
+      with:
+        name: BuildOutput
+        path: '**/bin/Release/net*/'

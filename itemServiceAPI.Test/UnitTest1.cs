@@ -61,5 +61,32 @@ namespace UnitTestController.Tests
             // Assert
             Assert.IsInstanceOf<NotFoundResult>(result);
         }
+
+        [Test]
+        public async Task GetAllItems_ShouldReturnOk_WhenItemsExist()
+        {
+            // Arrange
+            var testItems = new Item[]
+            {
+                new Item { Id = "item_1", Title = "Test Item 1" },
+                new Item { Id = "item_2", Title = "Test Item 2" },
+                new Item { Id = "item_3", Title = "Test Item 3" }
+            };
+
+            var testItemList = new List<Item>(testItems);
+            _itemDbRepositoryMock.Setup(repo => repo.GetAllItems())
+                                 .ReturnsAsync(testItemList);
+
+            // Act
+            var result = await _itemController.GetAllItems();
+
+            // Assert
+            Assert.IsInstanceOf<OkObjectResult>(result);
+            var okResult = result as OkObjectResult;
+            Assert.IsNotNull(okResult);
+            var returnedItems = okResult.Value as Item[];
+            Assert.IsNotNull(returnedItems);
+            Assert.AreEqual(testItems.Length, returnedItems.Length);
+        }
     }
 }

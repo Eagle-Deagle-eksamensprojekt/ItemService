@@ -1,4 +1,4 @@
-namespace ItemType
+namespace Models
 {
     using System;
     using System.Collections.Generic;

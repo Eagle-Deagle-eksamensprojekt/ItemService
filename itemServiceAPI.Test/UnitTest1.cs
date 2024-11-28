@@ -2,76 +2,64 @@ using NUnit.Framework;
 using Moq;
 using ItemServiceAPI.Models;
 using ItemServiceAPI.Controllers;
-using ItemServiceAPI;
-using System;
+using ItemServiceAPI.Repositories;
+using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
 
-namespace ItemService.Tests
+namespace UnitTestController.Tests
 {
     [TestFixture]
     public class UnitTest1
     {
-        private Mock<IItemRepository> _itemRepositoryMock;
-        private ItemService _itemService;
+        private Mock<IItemDbRepository> _itemDbRepositoryMock;
+        private Mock<ILogger<ItemController>> _loggerMock;
+        private ItemController _itemController;
 
         [SetUp]
         public void SetUp()
         {
-            _itemRepositoryMock = new Mock<IItemRepository>();
-            _itemService = new ItemService(_itemRepositoryMock.Object);
+            _loggerMock = new Mock<ILogger<ItemController>>();
+            _itemDbRepositoryMock = new Mock<IItemDbRepository>();
+            _itemController = new ItemController(_loggerMock.Object, _itemDbRepositoryMock.Object);
         }
 
         [Test]
-        public void CreateItem_ShouldSaveItemToDatabase_WhenValidInput()
-        {
-            // Arrange
-            var newItem = new Item
-            {
-                Title = "Test Item",
-                Description = "Test Description",
-                AuctionDate = DateTime.UtcNow.AddDays(1)
-            };
-
-            _itemRepositoryMock
-                .Setup(repo => repo.CreateItem(newItem))
-                .ReturnsAsync(true);
-
-            // Act
-            var result = _itemService.CreateItem(newItem);
-
-            // Assert
-            Assert.IsTrue(result.Result);
-            _itemRepositoryMock.Verify(repo => repo.CreateItem(newItem), Times.Once);
-        }
-
-        [Test]
-        public async Task GetItem_ShouldReturnItem_WhenIdIsValid()
+        public async Task GetItem_ShouldReturnOk_WhenItemExists()
         {
             // Arrange
             var itemId = "item_123";
-            var testItem = new Item
-            {
-                Id = itemId,
-                Title = "Test Item",
-                Description = "Test Description",
-                StartAuctionDateTime = DateTime.UtcNow.AddDays(1),
-                EndAuctionDateTime = DateTime.UtcNow.AddDays(2)
-            };
+            var testItem = new Item { Id = itemId, Title = "Test Item" };
 
-            _itemServiceMock.Setup(service => service.GetItemById(itemId))
-                            .ReturnsAsync(testItem);
+            _itemDbRepositoryMock.Setup(repo => repo.GetItemById(itemId))
+                                 .ReturnsAsync(testItem);
 
             // Act
-            var result = await _controller.GetItem(itemId);
+            var result = await _itemController.GetItem(itemId);
 
             // Assert
+            Assert.IsInstanceOf<OkObjectResult>(result);
             var okResult = result as OkObjectResult;
             Assert.IsNotNull(okResult);
             var returnedItem = okResult.Value as Item;
             Assert.IsNotNull(returnedItem);
-            Assert.AreEqual(testItem.Id, returnedItem.Id);
+            Assert.AreEqual(itemId, returnedItem.Id);
         }
 
-    }
+        [Test]
+        public async Task GetItem_ShouldReturnNotFound_WhenItemDoesNotExist()
+        {
+            // Arrange
+            var itemId = "non_existing_item";
 
-    
+            _itemDbRepositoryMock.Setup(repo => repo.GetItemById(itemId))
+                                 .ReturnsAsync((Item)null);
+
+            // Act
+            var result = await _itemController.GetItem(itemId);
+
+            // Assert
+            Assert.IsInstanceOf<NotFoundResult>(result);
+        }
+    }
 }

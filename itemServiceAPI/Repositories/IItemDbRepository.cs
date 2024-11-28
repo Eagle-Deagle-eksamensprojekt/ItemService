@@ -1,6 +1,15 @@
+using ItemServiceAPI.Models;
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+
 namespace ItemServiceAPI.Repositories
 {
-    public interface IItemRepository
+    public interface IItemDbRepository
     {
         Task<bool> CreateItem(Item item);
         Task<Item> GetItemById(string id);

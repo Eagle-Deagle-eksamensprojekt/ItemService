@@ -72,7 +72,7 @@ namespace UnitTestController.Tests
         
         /// GetAllItems
         
-        /// Test på at der returneres en liste, hvis items findes 
+        /// Test på at der returneres en liste 
         [Test]
         public async Task GetAllItems_ShouldReturnListOfItems_WhenItemsExist()
         {
@@ -98,12 +98,37 @@ namespace UnitTestController.Tests
             Assert.IsNotNull(okResult);
             Assert.IsInstanceOf<List<Item>>(okResult.Value);
 
+            // yderligere tjek på at det er de rigtige items der bliver fundet i listen
             var returnedItems = okResult.Value as List<Item>;
             Assert.AreEqual(3, returnedItems.Count);
             Assert.AreEqual("item_001", returnedItems[0].Id);
             Assert.AreEqual("item_002", returnedItems[1].Id);
             Assert.AreEqual("item_003", returnedItems[2].Id);
         }
+
+        // Test der tjekker at liste bliver returnet korrekt
+        [Test]
+        public async Task GetAllItems_ShouldReturnEmptyListCorrectly()
+        {
+            // Arrange
+            var testItems = new List<Item>(); // Tom liste
+
+            _itemDbRepositoryMock.Setup(repo => repo.GetAllItems())
+                                .ReturnsAsync(testItems);
+
+            // Act
+            var result = await _itemController.GetAllItems();
+
+            // Assert
+            var okResult = result as OkObjectResult;
+            Assert.IsNotNull(okResult); // Tjek, at resultatet ikke er null
+            Assert.IsInstanceOf<List<Item>>(okResult.Value); // Tjek, at returneret værdi er en liste af items
+
+            var returnedItems = okResult.Value as List<Item>;
+            Assert.IsNotNull(returnedItems); // Tjek, at listen ikke er null
+            Assert.IsEmpty(returnedItems); // Tjek, at listen er tom
+        }
+
 
         // Arrange
 

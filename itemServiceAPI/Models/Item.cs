@@ -7,6 +7,7 @@ namespace ItemServiceAPI.Models
     using System.Text.Json.Serialization;
     using System.Globalization;
 
+    
     public partial class Item
     {
         /// <summary>

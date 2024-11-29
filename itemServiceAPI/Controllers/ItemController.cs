@@ -56,5 +56,16 @@ public class ItemController : ControllerBase
         return null; // ikke implementeret kode endnu
     }
 
+    [HttpGet("auctionable")]
+    public async Task<IActionResult> GetAuctionableItems(DateTime auctionStart, DateTime auctionEnd)
+    {
+        return null; // ikke implementeret kode endnu
+    }
+
+    [HttpGet("owner/{ownerId}")]
+    public async Task<IActionResult> GetItemsByOwnerId(string ownerId)
+    {
+        return null; // ikke implementeret kode endnu
+    }
     
 }

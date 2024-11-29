@@ -16,5 +16,9 @@ namespace ItemServiceAPI.Repositories
         Task<List<Item>> GetAllItems();
         Task<bool> UpdateItem(string id, Item updatedItem);
         Task<bool> DeleteItem(string id);
+        Task<List<Item>> GetAuctionableItems(DateTime auctionStart, DateTime auctionEnd);
+        Task<object> GetItemsByOwnerId(string ownerId); // Endten skal det være denne eller den næste
+        //Task<List<Item>> GetItemsByOwner(string ownerId); // Skal dette være en liste???
+        
     }
 }

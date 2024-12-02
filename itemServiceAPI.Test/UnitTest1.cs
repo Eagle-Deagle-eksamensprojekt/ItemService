@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 using System;
+using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace UnitTestController.Tests
 {
@@ -189,25 +190,21 @@ namespace UnitTestController.Tests
         }
 
         // CreateItem
-        //Test, at et ugyldigt item ikke kan oprettes (returnerer f.eks. 400 Bad Request).
+        // Test, at en BadRequest returneres, hvis item er null
         [Test]
-        public async Task CreateItem_ShouldReturnStatus400BadRequest_WhenItemIsInvalid()
+        public async Task CreateItem_ShouldReturnStatus400BadRequest_WhenItemIsNull()
         {
-            // Arrange
-            var testItem = new Item { Id = "item_123", Title = "Test Item" };
-
-            _itemDbRepositoryMock.Setup(repo => repo.CreateItem(testItem))
-                                 .ReturnsAsync(false); //Returnerer false, da item ikke kan oprettes
-
             // Act
-            var result = await _itemController.CreateItem(testItem);
+            var result = await _itemController.CreateItem(null);
 
             // Assert
-            Assert.IsInstanceOf<BadRequestResult>(result); //Tjek at der er returneret en BadRequestResult
-            var badRequestResult = result as BadRequestResult;
+            Assert.IsInstanceOf<BadRequestObjectResult>(result); // Tjek, at resultatet er en BadRequestResult
+            var badRequestResult = result as BadRequestObjectResult;
             Assert.IsNotNull(badRequestResult);
-            Assert.AreEqual(400, badRequestResult.StatusCode); //Tjek at statuskoden er 400 Bad Request
+            Assert.AreEqual(400, badRequestResult.StatusCode); // Tjek, at statuskoden er 400 Bad Request
+            Assert.AreEqual("Item cannot be null.", badRequestResult.Value); // Tjek, at fejlbeskeden er korrekt
         }
+
 
         // CreateItem
         // Test, at et item ikke kan oprettes, hvis id allerede findes (returnerer f.eks. 409 Conflict).
@@ -215,20 +212,22 @@ namespace UnitTestController.Tests
         public async Task CreateItem_ShouldReturnStatus409Conflict_WhenItemAlreadyExists()
         {
             // Arrange
-            var testItem = new Item { Id = "item_123", Title = "Test Item" };
+            var existingItem = new Item { Id = "item_123", Title = "Existing Item" };
 
-            _itemDbRepositoryMock.Setup(repo => repo.CreateItem(testItem))
-                                 .ReturnsAsync(false); //Returnerer false, da item allerede findes
+            _itemDbRepositoryMock.Setup(repo => repo.GetItemById(existingItem.Id))
+                                .ReturnsAsync(existingItem); // Simulerer konflikt
 
             // Act
-            var result = await _itemController.CreateItem(testItem);
+            var result = await _itemController.CreateItem(existingItem);
 
             // Assert
-            Assert.IsInstanceOf<ConflictResult>(result); //Tjek at der er returneret en ConflictResult
-            var conflictResult = result as ConflictResult;
+            Assert.IsInstanceOf<ConflictObjectResult>(result); // Tjek, at resultatet er en ConflictObjectResult
+            var conflictResult = result as ConflictObjectResult;
             Assert.IsNotNull(conflictResult);
-            Assert.AreEqual(409, conflictResult.StatusCode); //Tjek at statuskoden er 409 Conflict
+            Assert.AreEqual(409, conflictResult.StatusCode); // Tjek, at statuskoden er 409 Conflict
+            Assert.AreEqual("An item with the same ID already exists.", conflictResult.Value); // Tjek konfliktbeskeden
         }
+
 
         // DeleteItem
         // Test, at et item kan slettes (returnerer f.eks. 204 No Content).

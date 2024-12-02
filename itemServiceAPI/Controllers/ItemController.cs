@@ -16,11 +16,11 @@ public class ItemController : ControllerBase
 {
     
 
-    private readonly ILogger<ItemController> _logger;
-    private readonly IItemDbRepository _itemDbRepository;
+    private readonly ILogger<ItemController> _logger; // Logger interface
+    private readonly IItemDbRepository _itemDbRepository; // Repository interface for item database operations
 
 
-    public ItemController(ILogger<ItemController> logger, IItemDbRepository itemDbRepository)
+    public ItemController(ILogger<ItemController> logger, IItemDbRepository itemDbRepository) // Constructor
     {
         _logger = logger;
         _itemDbRepository = itemDbRepository;

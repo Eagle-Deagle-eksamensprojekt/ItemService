@@ -1,4 +1,4 @@
-namespace ItemType
+namespace ItemServiceAPI.Models
 {
     using System;
     using System.Collections.Generic;
@@ -7,6 +7,7 @@ namespace ItemType
     using System.Text.Json.Serialization;
     using System.Globalization;
 
+    
     public partial class Item
     {
         /// <summary>

@@ -30,7 +30,13 @@ public class ItemController : ControllerBase
     public async Task<IActionResult> GetItem(string id)
     {
         var item = await _iItemDbRepository.GetItemById(id); // Henter item fra repository
-        return Ok(item); // Returnerer item hvis det findes
+        
+        if (item == null) // Hvis item ikke findes
+        {
+            return NotFound(); // Returnerer not found
+        }
+        
+        return Ok(item); // Returnerer ok med item
     }
 
     [HttpGet("all")]

@@ -51,9 +51,11 @@ public class ItemController : ControllerBase
 
             if (items == null || !items.Any())// Hvis der ikke er nogen items, returner en tom liste
             {
+                _logger.LogWarning("No items found.");
                 return Ok(new List<Item>());
             }
 
+            _logger.LogInformation("Items found.");
             return Ok(items);// Returner items med en 200 OK status
         }
         catch (Exception ex)

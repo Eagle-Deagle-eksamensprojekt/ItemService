@@ -17,19 +17,20 @@ public class ItemController : ControllerBase
     
 
     private readonly ILogger<ItemController> _logger; // Logger interface
-    private readonly IItemDbRepository _itemDbRepository; // Repository interface for item database operations
+    private readonly IItemDbRepository _iItemDbRepository; // Repository interface for item database operations
 
 
-    public ItemController(ILogger<ItemController> logger, IItemDbRepository itemDbRepository) // Constructor
+    public ItemController(ILogger<ItemController> logger, IItemDbRepository iItemDbRepository) // Constructor
     {
         _logger = logger;
-        _itemDbRepository = itemDbRepository;
+        _iItemDbRepository = iItemDbRepository;
     }
 
     [HttpGet("{id}")]
     public async Task<IActionResult> GetItem(string id)
     {
-        return null; // ikke implementeret kode endnu
+        var item = await _iItemDbRepository.GetItemById(id); // Henter item fra repository
+        return Ok(item); // Returnerer item hvis det findes
     }
 
     [HttpGet("all")]

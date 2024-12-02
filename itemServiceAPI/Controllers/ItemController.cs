@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
 
+
 namespace ItemServiceAPI.Controllers;
 
 [ApiController]
@@ -42,7 +43,25 @@ public class ItemController : ControllerBase
     [HttpGet("all")]
     public async Task<IActionResult> GetAllItems()
     {
-        return null; // ikke implementeret kode endnu
+        try
+        {
+            var items = await _iItemDbRepository.GetAllItems();// Hent alle items fra repository
+
+            if (items == null || !items.Any())// Hvis der ikke er nogen items, returner en tom liste
+            {
+                return Ok(new List<Item>());
+            }
+
+            return Ok(items);// Returner items med en 200 OK status
+        }
+        catch (Exception ex)
+        {
+            // Log eventuelle fejl
+            _logger.LogError(ex, "Error occurred while fetching all items.");
+
+            // Returner en generisk fejlmeddelelse
+            return StatusCode(500, "An error occurred while processing your request.");
+        }
     }
 
     [HttpPost]

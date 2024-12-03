@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using System;
-using ItemServiceAPI.Repositories;
+using ItemServiceAPI.Services;
 using ItemServiceAPI.Models;
 using System.Collections.Generic;
 using System.Linq;

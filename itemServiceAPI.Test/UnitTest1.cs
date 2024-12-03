@@ -2,7 +2,7 @@ using NUnit.Framework;
 using Moq;
 using ItemServiceAPI.Models;
 using ItemServiceAPI.Controllers;
-using ItemServiceAPI.Repositories;
+using ItemServiceAPI.Services;
 using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;

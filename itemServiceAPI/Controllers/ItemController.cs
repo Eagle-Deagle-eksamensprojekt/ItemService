@@ -173,7 +173,31 @@ public class ItemController : ControllerBase
     [HttpGet("owner/{ownerId}")]
     public async Task<IActionResult> GetItemsByOwnerId(string ownerId)
     {
-        return null; // ikke implementeret kode endnu
+        try
+        {
+            var items = await _iItemDbRepository.GetItemsByOwnerId(ownerId); 
+
+            if (items == null) // Hvis ingen items returneres fra repository
+            {
+                _logger.LogWarning("Owner ID not found.");
+                return NotFound(); // Returner 404 Not Found
+            }
+
+            if (!items.Any()) // Hvis listen er tom
+            {
+                _logger.LogInformation("No items found for the owner.");
+                return Ok(new List<Item>()); // Returnerer en tom liste
+            }
+
+            _logger.LogInformation("Items found for the owner.");
+            return Ok(items); // Returnerer items med 200 OK
+        }
+        catch (Exception ex) // Håndter eventuelle fejl
+        {
+            _logger.LogError(ex, "An error occurred while fetching items by owner ID.");
+            return StatusCode(500, "An error occurred while processing your request.");
+        }
     }
+
     
 }

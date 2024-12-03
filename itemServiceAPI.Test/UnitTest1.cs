@@ -359,9 +359,9 @@ namespace UnitTestController.Tests
                 new Item { Id = "item_003", Title = "Test Item 3", OwnerId = ownerId },
                 new Item { Id = "item_004", Title = "Test Item 4", OwnerId = "user_456" } //Denne skal ikke med i listen over items
             };
-
+            
             _itemDbRepositoryMock.Setup(repo => repo.GetItemsByOwnerId(ownerId))
-                                .ReturnsAsync(testItems); //Returnere items [0,1,2] som ejes af brugeren
+                                .ReturnsAsync(testItems.Where(i => i.OwnerId == ownerId).ToList()); //Returnerer items [0,1,2] som ejes af ownerId
 
             // Act
             var result = await _itemController.GetItemsByOwnerId(ownerId);
@@ -413,7 +413,7 @@ namespace UnitTestController.Tests
             var ownerId = "non_existing_user";
 
             _itemDbRepositoryMock.Setup(repo => repo.GetItemsByOwnerId(ownerId))
-                                .ReturnsAsync((List<Item>)null); //Returnerer null, da ownerId ikke findes
+                                .ReturnsAsync((List<Item>)null); // Simulerer, at ownerId ikke findes
 
             // Act
             var result = await _itemController.GetItemsByOwnerId(ownerId);

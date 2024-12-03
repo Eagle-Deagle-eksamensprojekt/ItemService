@@ -143,7 +143,25 @@ public class ItemController : ControllerBase
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteItem(string id)
     {
-        return null; // ikke implementeret kode endnu
+        var item = await _iItemDbRepository.GetItemById(id); // Henter item fra repository
+
+        if (item == null) // Hvis item ikke findes
+        {
+            _logger.LogWarning("Item not found.");
+            return NotFound(); // Returnerer 404 not found
+        }
+
+        var itemSuccess = await _iItemDbRepository.DeleteItem(id); // Sletter item fra repository
+        if (itemSuccess)
+        {
+            _logger.LogInformation("Item deleted successfully.");
+            return NoContent(); // Returnerer 204 No Content status
+        }
+        else
+        {
+            _logger.LogError("An error occurred while deleting the item.");
+            return StatusCode(500, "An error occurred while deleting the item.");
+        }
     }
 
     [HttpGet("auctionable")]

@@ -236,7 +236,11 @@ namespace UnitTestController.Tests
         {
             // Arrange
             var itemId = "item_123";
+            var testItem = new Item { Id = itemId, Title = "Updated Test Item" };
 
+
+            _itemDbRepositoryMock.Setup(repo => repo.GetItemById(itemId))
+                                .ReturnsAsync(testItem); // Item eksisterer
             _itemDbRepositoryMock.Setup(repo => repo.DeleteItem(itemId))
                                  .ReturnsAsync(true);  //Returnerer true, da item er slettet
 

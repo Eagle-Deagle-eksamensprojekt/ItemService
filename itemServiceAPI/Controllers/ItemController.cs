@@ -143,19 +143,82 @@ public class ItemController : ControllerBase
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteItem(string id)
     {
-        return null; // ikke implementeret kode endnu
+        var item = await _iItemDbRepository.GetItemById(id); // Henter item fra repository
+
+        if (item == null) // Hvis item ikke findes
+        {
+            _logger.LogWarning("Item not found.");
+            return NotFound(); // Returnerer 404 not found
+        }
+
+        var itemSuccess = await _iItemDbRepository.DeleteItem(id); // Sletter item fra repository
+        if (itemSuccess)
+        {
+            _logger.LogInformation("Item deleted successfully.");
+            return NoContent(); // Returnerer 204 No Content status
+        }
+        else
+        {
+            _logger.LogError("An error occurred while deleting the item.");
+            return StatusCode(500, "An error occurred while deleting the item.");
+        }
     }
 
     [HttpGet("auctionable")]
-    public async Task<IActionResult> GetAuctionableItems(DateTime auctionStart, DateTime auctionEnd)
+    public async Task<IActionResult> GetAuctionableItems()
     {
-        return null; // ikke implementeret kode endnu
+        try
+        {
+            var now = DateTimeOffset.UtcNow;
+            // var now = new DateTime(2024, 11, 25, 12, 0, 0); // Fast dato for test
+            var auctionableItems = await _iItemDbRepository.GetAuctionableItems(now.DateTime);
+
+            if (auctionableItems == null || !auctionableItems.Any())
+            {
+                _logger.LogInformation("No auctionable items found.");
+                return Ok(new List<Item>()); // Returnerer tom liste med 200 OK
+            }
+
+            _logger.LogInformation($"{auctionableItems.Count} auctionable items found.");
+            return Ok(auctionableItems);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "An error occurred while fetching auctionable items.");
+            return StatusCode(500, "An error occurred while processing your request.");
+        }
     }
+
+
 
     [HttpGet("owner/{ownerId}")]
     public async Task<IActionResult> GetItemsByOwnerId(string ownerId)
     {
-        return null; // ikke implementeret kode endnu
+        try
+        {
+            var items = await _iItemDbRepository.GetItemsByOwnerId(ownerId); 
+
+            if (items == null) // Hvis ingen items returneres fra repository
+            {
+                _logger.LogWarning("Owner ID not found.");
+                return NotFound(); // Returner 404 Not Found
+            }
+
+            if (!items.Any()) // Hvis listen er tom
+            {
+                _logger.LogInformation("No items found for the owner.");
+                return Ok(new List<Item>()); // Returnerer en tom liste
+            }
+
+            _logger.LogInformation("Items found for the owner.");
+            return Ok(items); // Returnerer items med 200 OK
+        }
+        catch (Exception ex) // Håndter eventuelle fejl
+        {
+            _logger.LogError(ex, "An error occurred while fetching items by owner ID.");
+            return StatusCode(500, "An error occurred while processing your request.");
+        }
     }
+
     
 }

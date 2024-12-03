@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 using System;
+using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace UnitTestController.Tests
 {
@@ -189,25 +190,21 @@ namespace UnitTestController.Tests
         }
 
         // CreateItem
-        //Test, at et ugyldigt item ikke kan oprettes (returnerer f.eks. 400 Bad Request).
+        // Test, at en BadRequest returneres, hvis item er null
         [Test]
-        public async Task CreateItem_ShouldReturnStatus400BadRequest_WhenItemIsInvalid()
+        public async Task CreateItem_ShouldReturnStatus400BadRequest_WhenItemIsNull()
         {
-            // Arrange
-            var testItem = new Item { Id = "item_123", Title = "Test Item" };
-
-            _itemDbRepositoryMock.Setup(repo => repo.CreateItem(testItem))
-                                 .ReturnsAsync(false); //Returnerer false, da item ikke kan oprettes
-
             // Act
-            var result = await _itemController.CreateItem(testItem);
+            var result = await _itemController.CreateItem(null);
 
             // Assert
-            Assert.IsInstanceOf<BadRequestResult>(result); //Tjek at der er returneret en BadRequestResult
-            var badRequestResult = result as BadRequestResult;
+            Assert.IsInstanceOf<BadRequestObjectResult>(result); // Tjek, at resultatet er en BadRequestResult
+            var badRequestResult = result as BadRequestObjectResult;
             Assert.IsNotNull(badRequestResult);
-            Assert.AreEqual(400, badRequestResult.StatusCode); //Tjek at statuskoden er 400 Bad Request
+            Assert.AreEqual(400, badRequestResult.StatusCode); // Tjek, at statuskoden er 400 Bad Request
+            Assert.AreEqual("Item cannot be null.", badRequestResult.Value); // Tjek, at fejlbeskeden er korrekt
         }
+
 
         // CreateItem
         // Test, at et item ikke kan oprettes, hvis id allerede findes (returnerer f.eks. 409 Conflict).
@@ -215,20 +212,22 @@ namespace UnitTestController.Tests
         public async Task CreateItem_ShouldReturnStatus409Conflict_WhenItemAlreadyExists()
         {
             // Arrange
-            var testItem = new Item { Id = "item_123", Title = "Test Item" };
+            var existingItem = new Item { Id = "item_123", Title = "Existing Item" };
 
-            _itemDbRepositoryMock.Setup(repo => repo.CreateItem(testItem))
-                                 .ReturnsAsync(false); //Returnerer false, da item allerede findes
+            _itemDbRepositoryMock.Setup(repo => repo.GetItemById(existingItem.Id))
+                                .ReturnsAsync(existingItem); // Simulerer konflikt
 
             // Act
-            var result = await _itemController.CreateItem(testItem);
+            var result = await _itemController.CreateItem(existingItem);
 
             // Assert
-            Assert.IsInstanceOf<ConflictResult>(result); //Tjek at der er returneret en ConflictResult
-            var conflictResult = result as ConflictResult;
+            Assert.IsInstanceOf<ConflictObjectResult>(result); // Tjek, at resultatet er en ConflictObjectResult
+            var conflictResult = result as ConflictObjectResult;
             Assert.IsNotNull(conflictResult);
-            Assert.AreEqual(409, conflictResult.StatusCode); //Tjek at statuskoden er 409 Conflict
+            Assert.AreEqual(409, conflictResult.StatusCode); // Tjek, at statuskoden er 409 Conflict
+            Assert.AreEqual("An item with the same ID already exists.", conflictResult.Value); // Tjek konfliktbeskeden
         }
+
 
         // DeleteItem
         // Test, at et item kan slettes (returnerer f.eks. 204 No Content).
@@ -273,31 +272,30 @@ namespace UnitTestController.Tests
         }
 
         // UpdateItem
-        // Test, at et item kan opdateres (returnerer f.eks. 200 OK).
+        // Test, at et item kan opdateres returnerer 200 OK
         [Test]
         public async Task UpdateItem_ShouldReturnStatus200OK_WhenItemIsUpdated()
         {
             // Arrange
             var itemId = "item_123";
-            var testItem = new Item { Id = itemId, Title = "Updated Test Item" }; // Simuleret opdateret data
+            var testItem = new Item { Id = itemId, Title = "Updated Test Item" };
 
-            // Mock repository: Antag at opdateringen lykkes
-            _itemDbRepositoryMock.Setup(repo => repo.UpdateItem(itemId, testItem))
-                                .ReturnsAsync(true); //Returnerer true, da item er opdateret
+            _itemDbRepositoryMock.Setup(repo => repo.GetItemById(itemId))
+                                .ReturnsAsync(testItem); // Item eksisterer
+            _itemDbRepositoryMock.Setup(repo => repo.UpdateItem(testItem))
+                                .ReturnsAsync(true); // Opdatering lykkes
 
             // Act
             var result = await _itemController.UpdateItem(itemId, testItem);
 
             // Assert
-            // 1. Tjek HTTP-responsen
-            Assert.IsInstanceOf<OkResult>(result);
-            var okResult = result as OkResult;
+            Assert.IsInstanceOf<OkObjectResult>(result); // Tjek, at resultatet er en OkObjectResult
+            var okResult = result as OkObjectResult;
             Assert.IsNotNull(okResult);
             Assert.AreEqual(200, okResult.StatusCode);
-
-            // 2. Verificér at repository-metoden blev kaldt korrekt
-            _itemDbRepositoryMock.Verify(repo => repo.UpdateItem(itemId, testItem), Times.Once); //Tjek at UpdateItem blev kaldt én gang
+            Assert.AreEqual(testItem, okResult.Value); // Tjek, at det returnerede item er korrekt
         }
+
 
 
         // UpdateItem
@@ -309,37 +307,39 @@ namespace UnitTestController.Tests
             var itemId = "non_existing_item";
             var testItem = new Item { Id = itemId, Title = "Test Item" };
 
-            _itemDbRepositoryMock.Setup(repo => repo.UpdateItem(itemId, testItem))
-                                 .ReturnsAsync(false); //Returnerer false, da item ikke findes
+            _itemDbRepositoryMock.Setup(repo => repo.GetItemById(itemId))
+                                 .ReturnsAsync((Item)null); //Returnerer false, da item ikke findes
 
             // Act
             var result = await _itemController.UpdateItem(itemId, testItem);
 
             // Assert
-            Assert.IsInstanceOf<NotFoundResult>(result); //Tjek at der er returneret en NotFoundResult
-            var notFoundResult = result as NotFoundResult;
+            Assert.IsInstanceOf<NotFoundObjectResult>(result); //Tjek at der er returneret en NotFoundObjectResult
+            var notFoundResult = result as NotFoundObjectResult; 
             Assert.IsNotNull(notFoundResult);
             Assert.AreEqual(404, notFoundResult.StatusCode); //Tjek at statuskoden er 404 Not Found
         }
 
         // UpdateItem
-        // Test, at et item ikke kan opdateres, hvis der mangler data (returnerer f.eks. 400 Bad Request).
+        // Test, at et item ikke kan opdateres, hvis id ikke matcher returnerer 400 Bad Request.
         [Test]
-        public async Task UpdateItem_ShouldReturnStatus400BadRequest_WhenItemIsInvalid()
+        public async Task UpdateItem_ShouldReturnStatus400BadRequest_WhenIdMismatch()
         {
             // Arrange
             var itemId = "item_123";
-            var testItem = new Item { Id = itemId, Title = null }; // Simuleret ugyldig data
+            var testItem = new Item { Id = "different_id", Title = "Test Item" }; // ID mismatch
 
             // Act
             var result = await _itemController.UpdateItem(itemId, testItem);
 
             // Assert
-            Assert.IsInstanceOf<BadRequestResult>(result); //Tjek at der er returneret en BadRequestResult
-            var badRequestResult = result as BadRequestResult;
+            Assert.IsInstanceOf<BadRequestObjectResult>(result); // Tjek, at resultatet er en BadRequestObjectResult
+            var badRequestResult = result as BadRequestObjectResult;
             Assert.IsNotNull(badRequestResult);
-            Assert.AreEqual(400, badRequestResult.StatusCode); //Tjek at statuskoden er 400 Bad Request
+            Assert.AreEqual(400, badRequestResult.StatusCode);
+            Assert.AreEqual("ID mismatch.", badRequestResult.Value); // Tjek beskeden
         }
+
 
         // GetItemsByOwnerId
         // Test, at der returneres en liste af items, som ejes af en bestemt bruger

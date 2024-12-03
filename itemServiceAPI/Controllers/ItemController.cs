@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using System.Data;
 
 
 
@@ -52,7 +53,7 @@ public class ItemController : ControllerBase
             if (items == null || !items.Any())// Hvis der ikke er nogen items, returner en tom liste
             {
                 _logger.LogWarning("No items found.");
-                return Ok(new List<Item>());
+                return Ok(new List<Item>()); // Returner en tom liste med en 200 OK status
             }
 
             _logger.LogInformation("Items found.");
@@ -90,7 +91,7 @@ public class ItemController : ControllerBase
         if (itemSuccess)
         {
             _logger.LogInformation("Item created successfully.");
-            return CreatedAtAction(nameof(GetItem), new { id = item.Id }, item);
+            return CreatedAtAction(nameof(GetItem), new { id = item.Id }, item); // Returnerer item med 201 Created status
         }
         else
         {
@@ -103,7 +104,40 @@ public class ItemController : ControllerBase
     [HttpPut("{id}")]
     public async Task<IActionResult> UpdateItem(string id, Item item)
     {
-        return null; // ikke implementeret kode endnu
+        if (item == null) // Tjek for null input
+        {
+            _logger.LogWarning("Item cannot be null.");
+            return BadRequest("Item cannot be null.");
+        }
+
+        if (id != item.Id) // Tjek for ID mismatch
+        {
+            _logger.LogWarning("ID mismatch.");
+            return BadRequest("ID mismatch.");
+        }
+
+        // Conflict check
+        var itemConflict = await _iItemDbRepository.GetItemById(item.Id); // Tjekker om item allerede findes
+        if (itemConflict == null) // Hvis item ikke findes
+        {
+            _logger.LogWarning("Item not found.");
+            return NotFound("Item not found."); // Returnerer 404 not found
+        }
+        
+
+        // Update item
+        var itemSuccess = await _iItemDbRepository.UpdateItem(item); // Opdaterer item i repository
+        if (itemSuccess)
+        {
+            _logger.LogInformation("Item updated successfully.");
+            return Ok(item); // Returnerer item med 200 OK status
+            
+        }
+        else
+        {
+            _logger.LogError("An error occurred while updating the item.");
+            return StatusCode(500, "An error occurred while updating the item."); 
+        }
     }
    
     [HttpDelete("{id}")]

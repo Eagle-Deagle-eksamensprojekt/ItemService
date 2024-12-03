@@ -14,11 +14,12 @@ namespace ItemServiceAPI.Repositories
         Task<bool> CreateItem(Item item);
         Task<Item> GetItemById(string id);
         Task<List<Item>> GetAllItems();
-        Task<bool> UpdateItem(string id, Item updatedItem);
+        // Task<bool> UpdateItem(string id, Item updatedItem);  // Hvorfor skal jeg have 2 UpdateItem metoder?
         Task<bool> DeleteItem(string id);
         Task<List<Item>> GetAuctionableItems(DateTime auctionStart, DateTime auctionEnd);
         Task<object> GetItemsByOwnerId(string ownerId); // Endten skal det være denne eller den næste
+        Task<bool> UpdateItem(Item item); // Hvorfor skal jeg have 2 UpdateItem metoder?
         //Task<List<Item>> GetItemsByOwner(string ownerId); // Skal dette være en liste???
-        
+
     }
 }

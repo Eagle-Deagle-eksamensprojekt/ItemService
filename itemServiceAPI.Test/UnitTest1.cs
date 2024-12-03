@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System;
 using Microsoft.AspNetCore.Http.HttpResults;
 
+
 namespace UnitTestController.Tests
 {
     [TestFixture]
@@ -136,24 +137,24 @@ namespace UnitTestController.Tests
         // GetAuctionableItems
         // Test, at der returneres en liste af items, som er auctionable
         [Test]
-        public async Task GetAuctionableItems_ShouldReturnListOfItems_BasedOnDate()
+        public async Task GetAuctionableItems_ShouldReturnListOfItems_BasedOnCurrentDate()
         {
             // Arrange
-            var auctionStart = DateTime.Now.AddDays(-2);
-            var auctionEnd = DateTime.Now.AddDays(2);
+            var now = DateTimeOffset.UtcNow;
+            //var now = new DateTime(2024, 11, 25, 12, 0, 0); // Fast dato for test // problemer med denne test, da der sker noget i dato, for nu skal dato være hard coded.
             var testItems = new List<Item>
             {
-                new Item { Id = "item_001", Title = "Test Item 1", StartAuctionDateTime = DateTimeOffset.Now.AddDays(-1), EndAuctionDateTime = DateTimeOffset.Now.AddDays(1) },
-                new Item { Id = "item_002", Title = "Test Item 2", StartAuctionDateTime = DateTimeOffset.Now.AddDays(-1), EndAuctionDateTime = DateTimeOffset.Now.AddDays(1) },
-                new Item { Id = "item_003", Title = "Test Item 3", StartAuctionDateTime = DateTimeOffset.Now.AddDays(-1), EndAuctionDateTime = DateTimeOffset.Now.AddDays(1) },
-                new Item { Id = "item_004", Title = "Test Item 4", StartAuctionDateTime = DateTimeOffset.Now.AddDays(-7), EndAuctionDateTime = DateTimeOffset.Now.AddDays(-5) } //Denne skal gerne ikke med i listen over auctionable items
+                new Item { Id = "item_001", Title = "Test Item 1", StartAuctionDateTime = now.AddDays(-1), EndAuctionDateTime = now.AddDays(1) },
+                new Item { Id = "item_002", Title = "Test Item 2", StartAuctionDateTime = now.AddDays(-2), EndAuctionDateTime = now.AddDays(2) },
+                new Item { Id = "item_003", Title = "Test Item 3", StartAuctionDateTime = now.AddDays(-3), EndAuctionDateTime = now.AddDays(-2) },
+                new Item { Id = "item_004", Title = "Test Item 4", StartAuctionDateTime = now.AddDays(1), EndAuctionDateTime = now.AddDays(2) }
             };
 
-            _itemDbRepositoryMock.Setup(repo => repo.GetAuctionableItems(auctionStart, auctionEnd))
-                                .ReturnsAsync(testItems); //Returnere items [0,1,2] som er auctionable
+            _itemDbRepositoryMock.Setup(repo => repo.GetAuctionableItems(now.DateTime))
+                                .ReturnsAsync(testItems.Where(i => i.StartAuctionDateTime <= now && i.EndAuctionDateTime >= now).ToList());
 
             // Act
-            var result = await _itemController.GetAuctionableItems(auctionStart, auctionEnd);
+            var result = await _itemController.GetAuctionableItems();
 
             // Assert
             var okResult = result as OkObjectResult;
@@ -161,12 +162,39 @@ namespace UnitTestController.Tests
             Assert.IsInstanceOf<List<Item>>(okResult.Value);
 
             var returnedItems = okResult.Value as List<Item>;
-            Assert.AreEqual(3, returnedItems.Count);
+            Assert.AreEqual(2, returnedItems.Count); // Kun 2 items er auktionsklare
             Assert.AreEqual("item_001", returnedItems[0].Id);
             Assert.AreEqual("item_002", returnedItems[1].Id);
-            Assert.AreEqual("item_003", returnedItems[2].Id);
-            Assert.IsFalse(returnedItems.Exists(i => i.Id == "item_004")); //Denne skal ikke være i listen
         }
+
+
+
+        // GetAuctionableItems
+        // Test, at der returneres en tom liste, hvis ingen items er auctionable
+        [Test]
+        public async Task GetAuctionableItems_ShouldReturnEmptyList_WhenNoAuctionableItemsExist()
+        {
+            // Arrange
+            var now = DateTime.UtcNow;
+            var testItems = new List<Item>(); // Tom liste
+
+            _itemDbRepositoryMock.Setup(repo => repo.GetAuctionableItems(now))
+                                .ReturnsAsync(testItems);
+
+            // Act
+            var result = await _itemController.GetAuctionableItems();
+
+            // Assert
+            var okResult = result as OkObjectResult;
+            Assert.IsNotNull(okResult);
+            Assert.IsInstanceOf<List<Item>>(okResult.Value);
+
+            var returnedItems = okResult.Value as List<Item>;
+            Assert.IsNotNull(returnedItems);
+            Assert.IsEmpty(returnedItems); // Tjek, at listen er tom
+        }
+
+
 
         // CreateItem
         //Test, at et gyldigt item kan oprettes (returnerer f.eks. 201 Created).

@@ -165,10 +165,31 @@ public class ItemController : ControllerBase
     }
 
     [HttpGet("auctionable")]
-    public async Task<IActionResult> GetAuctionableItems(DateTime auctionStart, DateTime auctionEnd)
+    public async Task<IActionResult> GetAuctionableItems()
     {
-        return null; // ikke implementeret kode endnu
+        try
+        {
+            var now = DateTimeOffset.UtcNow;
+            // var now = new DateTime(2024, 11, 25, 12, 0, 0); // Fast dato for test
+            var auctionableItems = await _iItemDbRepository.GetAuctionableItems(now.DateTime);
+
+            if (auctionableItems == null || !auctionableItems.Any())
+            {
+                _logger.LogInformation("No auctionable items found.");
+                return Ok(new List<Item>()); // Returnerer tom liste med 200 OK
+            }
+
+            _logger.LogInformation($"{auctionableItems.Count} auctionable items found.");
+            return Ok(auctionableItems);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "An error occurred while fetching auctionable items.");
+            return StatusCode(500, "An error occurred while processing your request.");
+        }
     }
+
+
 
     [HttpGet("owner/{ownerId}")]
     public async Task<IActionResult> GetItemsByOwnerId(string ownerId)

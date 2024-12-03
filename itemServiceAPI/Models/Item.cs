@@ -6,10 +6,20 @@ namespace ItemServiceAPI.Models
     using System.Text.Json;
     using System.Text.Json.Serialization;
     using System.Globalization;
+    using MongoDB.Bson;
+    using MongoDB.Bson.Serialization.Attributes;
 
     
     public partial class Item
     {
+        [BsonId]
+        [BsonRepresentation(BsonType.ObjectId)]
+        /// <summary>
+        /// A unique identifier for the user (MongoDB ObjectId).
+        /// </summary>
+        [JsonPropertyName("id")]
+        public string? Id { get; set; }
+
         /// <summary>
         /// The date and time when the item was created.
         /// </summary>
@@ -27,12 +37,6 @@ namespace ItemServiceAPI.Models
         /// </summary>
         [JsonPropertyName("endAuctionDateTime")]
         public DateTimeOffset EndAuctionDateTime { get; set; }
-
-        /// <summary>
-        /// A unique identifier for the item (MongoDB ObjectId).
-        /// </summary>
-        [JsonPropertyName("id")]
-        public string Id { get; set; }
 
         /// <summary>
         /// A secondary unique identifier for the item (system-wide readable ID).

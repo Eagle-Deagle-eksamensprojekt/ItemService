@@ -5,8 +5,8 @@
   "properties": {
     "id": {
       "type": "string",
-      "description": "A unique identifier for the item (MongoDB ObjectId).",
-      "pattern": "^[a-fA-F0-9]{24}$"
+      "description": "A unique identifier for the user as a GUID.",
+      "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
     },
     "itemId": {
       "type": "string",

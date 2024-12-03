@@ -29,7 +29,7 @@ public class ItemController : ControllerBase
     }
 
     [HttpGet("{id}")]
-    public async Task<IActionResult> GetItem(string id)
+    public async Task<IActionResult> GetItem(string id) // ændre it til itemId i hele controlleren
     {
         var item = await _iItemDbRepository.GetItemById(id); // Henter item fra repository
         

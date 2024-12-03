@@ -66,7 +66,7 @@ namespace Services
                 throw;
             }
         }
-        public Task<Item> GetItemById(string id)
+        public Task<Item> GetItemById(string id) // ændre it til itemId i hele repository
         {
             try
             {
@@ -94,7 +94,16 @@ namespace Services
         }
         public Task<bool> DeleteItem(string id)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var result = _itemCollection.DeleteOne(i => i.Id == id); // Delete the item
+                return Task.FromResult(result.DeletedCount == 1); // Return true if one item was deleted    
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("Error deleting item: {0}", ex.Message);
+                throw; // Rethrow the exception
+            }
         }
         public Task<List<Item>> GetAuctionableItems(DateTime currentDateTime)
         {

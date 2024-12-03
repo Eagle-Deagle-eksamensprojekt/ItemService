@@ -23,7 +23,6 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
-
         dotnet-version: '8.0.x'
 
     - name: Install dependencies
@@ -33,7 +32,13 @@ jobs:
       run: dotnet build --no-restore --configuration Release
 
     - name: Run tests
-      run: dotnet test --no-build --configuration Release --verbosity normal
+      run: dotnet test --no-build --configuration Release --logger "trx;LogFileName=test_results.trx" --verbosity detailed
+
+    - name: Upload test results
+      uses: actions/upload-artifact@v3
+      with:
+        name: TestResults
+        path: '**/TestResults/*.trx'
 
     - name: Upload build artifacts
       if: success()

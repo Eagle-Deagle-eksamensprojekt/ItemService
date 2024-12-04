@@ -30,35 +30,22 @@ namespace Services
                 var client = new MongoClient(connectionString);
                 var database = client.GetDatabase(databaseName);
                 _itemCollection = database.GetCollection<Item>(collectionName);
+                _logger.LogInformation("Connected to MongoDB.");
             }
             catch (Exception ex)
             {
                 _logger.LogError("Failed to connect to MongoDB: {0}", ex.Message);
-                throw;
+                throw; 
             }
         }
 
-        /*
-        public async Task<Item> CreateUserAsync(Item item)
-        {
-            // TODO: Add additional validation if needed
-            try
-            {
-                await _itemCollection.InsertOneAsync(item);
-                return item;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError("Error creating user: {0}", ex.Message);
-                throw;
-            }
-        }*/
         public async Task<bool> CreateItem(Item item)
         {
             try 
             {
-                await _itemCollection.InsertOneAsync(item);
-                return true;
+                await _itemCollection.InsertOneAsync(item); // Insert the item
+                _logger.LogInformation("Item created: {0}", item);
+                return true; // Return true if the item was created
             }
             catch (Exception ex)
             {
@@ -70,8 +57,9 @@ namespace Services
         {
             try
             {
-                var item = _itemCollection.Find(i => i.Id == id).FirstOrDefault();
-                return Task.FromResult(item);
+                var item = _itemCollection.Find(i => i.Id == id).FirstOrDefault(); // Find the item
+                _logger.LogInformation("Item found: {0}", item);
+                return Task.FromResult(item); // Return the item
             }
             catch (Exception ex)
             {
@@ -83,8 +71,9 @@ namespace Services
         {
             try
             {
-                var items = _itemCollection.Find(i => true).ToList();
-                return Task.FromResult(items);
+                var items = _itemCollection.Find(i => true).ToList(); // Find all items
+                _logger.LogInformation($"{items.Count} items found.");
+                return Task.FromResult(items); // Return the items
             }
             catch (Exception ex)
             {
@@ -97,6 +86,7 @@ namespace Services
             try
             {
                 var result = _itemCollection.DeleteOne(i => i.Id == id); // Delete the item
+                _logger.LogInformation("Deleted item: {0}", id);
                 return Task.FromResult(result.DeletedCount == 1); // Return true if one item was deleted    
             }
             catch (Exception ex)
@@ -107,16 +97,46 @@ namespace Services
         }
         public Task<List<Item>> GetAuctionableItems(DateTime currentDateTime)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var auctionableItems = _itemCollection.Find(i => i.StartAuctionDateTime <= currentDateTime && i.EndAuctionDateTime >= currentDateTime).ToList(); // Find all items where the auction is active
+                _logger.LogInformation($"{auctionableItems.Count} auctionable items found.");
+                return Task.FromResult(auctionableItems); // Return the auctionable items
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("Error fetching auctionable items: {0}", ex.Message);
+                throw;
+            }
         }
 
         public Task<List<Item>> GetItemsByOwnerId(string ownerId)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var items = _itemCollection.Find(i => i.OwnerId == ownerId).ToList(); // Find all items with the specified ownerId
+                _logger.LogInformation($"{items.Count} items found for owner: {0}", ownerId);
+                return Task.FromResult(items);  // Return the items
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("Error fetching items for owner: {0}", ex.Message);
+                throw;  // Rethrow the exception
+            }
         }
         public Task<bool> UpdateItem(Item item)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var result = _itemCollection.ReplaceOne(i => i.Id == item.Id, item); // Replace the item
+                _logger.LogInformation("Updated item: {0}", item);
+                return Task.FromResult(result.ModifiedCount == 1); // Return true if one item was modified
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("Error updating item: {0}", ex.Message);
+                throw;
+            }
         }
 
     }

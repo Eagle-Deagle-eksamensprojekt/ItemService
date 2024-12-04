@@ -1,7 +1,11 @@
 using ItemServiceAPI.Services;
 using Services;
 
+
 var builder = WebApplication.CreateBuilder(args);
+
+Thread.CurrentThread.CurrentCulture = System.Globalization.CultureInfo.InvariantCulture; // Set the culture to invariant
+
 
 // Add services to the container.
 

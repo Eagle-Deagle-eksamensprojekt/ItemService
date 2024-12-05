@@ -15,7 +15,7 @@ namespace ItemServiceAPI.Models
         [BsonId]
         [BsonRepresentation(BsonType.ObjectId)]
         /// <summary>
-        /// A unique identifier for the user (MongoDB ObjectId).
+        /// A unique identifier for the item (MongoDB ObjectId).
         /// </summary>
         [JsonPropertyName("id")]
         public string? Id { get; set; }

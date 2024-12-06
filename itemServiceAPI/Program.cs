@@ -1,8 +1,15 @@
 using ItemServiceAPI.Services;
 using Services;
-
+using NLog.Web;
+using NLog;
+using NLog.Loki;
 
 var builder = WebApplication.CreateBuilder(args);
+
+var logger = NLog.LogManager.Setup().LoadConfigurationFromAppSettings()
+        .GetCurrentClassLogger();
+        logger.Debug("init main"); // NLog setup
+
 
 Thread.CurrentThread.CurrentCulture = System.Globalization.CultureInfo.InvariantCulture; // Set the culture to invariant
 
@@ -14,6 +21,10 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddSingleton<IItemDbRepository, ItemMongoDBService>();
+
+// Registrér at I ønsker at bruge NLOG som logger fremadrettet (før builder.build)
+builder.Logging.ClearProviders();
+builder.Host.UseNLog();
 
 var app = builder.Build();
 

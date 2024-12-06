@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using System;
-using ItemServiceAPI.Repositories;
+using ItemServiceAPI.Services;
 using ItemServiceAPI.Models;
 using System.Collections.Generic;
 using System.Linq;
@@ -29,7 +29,7 @@ public class ItemController : ControllerBase
     }
 
     [HttpGet("{id}")]
-    public async Task<IActionResult> GetItem(string id)
+    public async Task<IActionResult> GetItem(string id) // ændre it til itemId i hele controlleren
     {
         var item = await _iItemDbRepository.GetItemById(id); // Henter item fra repository
         
@@ -163,7 +163,34 @@ public class ItemController : ControllerBase
             return StatusCode(500, "An error occurred while deleting the item.");
         }
     }
+/*
+    [HttpGet("auctionable")]
+    public async Task<IActionResult> GetAuctionableItems()
+    {
+        try
+        {
+            var now = DateTime.UtcNow;
+            var now2 = new DateTime(2024, 12, 4, 12, 0, 0); // Fast dato for test
 
+             //var now2 = new DateTime(2024, 11, 04); // Fast dato for test
+            var auctionableItems = await _iItemDbRepository.GetAuctionableItems(new DateTime(2024, 12, 4, 12, 0, 0));
+
+            if (auctionableItems == null || !auctionableItems.Any())
+            {
+                _logger.LogInformation("No auctionable items found.");
+                return Ok(new List<Item>()); // Returnerer tom liste med 200 OK
+            }
+
+            _logger.LogInformation($"{auctionableItems.Count} auctionable items found.");
+            return Ok(auctionableItems);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "An error occurred while fetching auctionable items.");
+            return StatusCode(500, "An error occurred while processing your request.");
+        }
+    }
+    */
     [HttpGet("auctionable")]
     public async Task<IActionResult> GetAuctionableItems()
     {

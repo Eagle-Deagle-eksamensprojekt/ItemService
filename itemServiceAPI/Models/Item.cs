@@ -71,7 +71,7 @@ namespace ItemServiceAPI.Models
         /// <summary>
         /// The estimated value of the item.
         /// </summary>
-        [JsonPropertyName("vurdertPrice")]
-        public double VurdertPrice { get; set; }
+        [JsonPropertyName("vurderetPrice")]
+        public double VurderetPrice { get; set; }
     }
 }

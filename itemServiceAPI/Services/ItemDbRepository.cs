@@ -139,5 +139,26 @@ namespace Services
             }
         }
 
+        public async Task<bool> CheckItemIsAuctionable(string id, DateTime currentDateTime)
+        {
+            try
+            {
+                var item = await _itemCollection.Find(i => i.Id == id).FirstOrDefaultAsync(); // Asynchronous query
+                if (item == null)
+                {
+                    _logger.LogWarning("Item with ID {0} not found.", id);
+                    return false; // Not auctionable if item doesn't exist
+                }
+
+                var isAuctionable = item.StartAuctionDateTime <= currentDateTime && item.EndAuctionDateTime >= currentDateTime;
+                _logger.LogInformation("Item {0} is auctionable: {1}", id, isAuctionable);
+                return isAuctionable;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("Error checking if item is auctionable: {0}", ex.Message);
+                throw;
+            }
+        }
     }
 }

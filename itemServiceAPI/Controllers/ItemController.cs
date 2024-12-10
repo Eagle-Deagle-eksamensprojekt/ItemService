@@ -247,5 +247,34 @@ public class ItemController : ControllerBase
         }
     }
 
-    
+    // Tjekker om item er true, hvis den er auctionable
+    [HttpGet("auctionable/{itemId}")]
+    public async Task<IActionResult> CheckItemIsAuctionable(string itemId, [FromQuery] string dateTime)
+    {
+        if (string.IsNullOrWhiteSpace(itemId))
+        {
+            return BadRequest("Item ID is required.");
+        }
+
+        if (!DateTimeOffset.TryParse(dateTime, out var parsedDateTime)) // Tjekker om DateTime er gyldig
+        {
+            return BadRequest("Invalid DateTime format."); // Returnerer bad request hvis DateTime ikke er gyldig
+        }
+
+        try
+        {
+            var isAuctionable = await _iItemDbRepository.CheckItemIsAuctionable(itemId, parsedDateTime.UtcDateTime);
+            return Ok(isAuctionable);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error checking if item is auctionable.");
+            return StatusCode(500, "An error occurred while checking the item.");
+        }
+    }
+
+
+
+                    //var userExists = users.Any(u => u.Email.Equals(email, StringComparison.OrdinalIgnoreCase)); // søger i listen af brugere om en email matcher
+
 }

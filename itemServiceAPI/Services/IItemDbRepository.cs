@@ -14,5 +14,7 @@ namespace ItemServiceAPI.Services
         Task<List<Item>> GetItemsByOwnerId(string ownerId); // Endten skal det være denne eller den næste
         Task<bool> UpdateItem(Item item); // Hvorfor skal jeg have 2 UpdateItem metoder?
 
+        Task<bool> CheckItemIsAuctionable(string id, DateTime currentDateTime);
+        //Task<bool> CheckItemIsAuctionable(string id);
     }
 }

@@ -191,6 +191,7 @@ public class ItemController : ControllerBase
         }
     }
     */
+    /*
     [HttpGet("auctionable")]
     public async Task<IActionResult> GetAuctionableItems()
     {
@@ -215,7 +216,7 @@ public class ItemController : ControllerBase
             return StatusCode(500, "An error occurred while processing your request.");
         }
     }
-
+*/
 
 
     [HttpGet("owner/{ownerId}")]
@@ -246,6 +247,4 @@ public class ItemController : ControllerBase
             return StatusCode(500, "An error occurred while processing your request.");
         }
     }
-
-    
 }

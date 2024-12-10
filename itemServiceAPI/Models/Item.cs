@@ -33,34 +33,10 @@ namespace ItemServiceAPI.Models
         public string Description { get; set; }
 
         /// <summary>
-        /// The end date and time for the auction of this item.
-        /// </summary>
-        [JsonPropertyName("endAuctionDateTime")]
-        public DateTimeOffset EndAuctionDateTime { get; set; }
-
-        /// <summary>
-        /// A secondary unique identifier for the item (system-wide readable ID).
-        /// </summary>
-        [JsonPropertyName("itemId")]
-        public string ItemId { get; set; }
-
-        /// <summary>
         /// The ID of the user who owns this item (must reference a user with isSeller = true).
         /// </summary>
         [JsonPropertyName("ownerId")]
         public string OwnerId { get; set; }
-
-        /// <summary>
-        /// The start date and time for the auction of this item.
-        /// </summary>
-        [JsonPropertyName("startAuctionDateTime")]
-        public DateTimeOffset StartAuctionDateTime { get; set; }
-
-        /// <summary>
-        /// The starting price for the auction of this item.
-        /// </summary>
-        [JsonPropertyName("startPrice")]
-        public double StartPrice { get; set; }
 
         /// <summary>
         /// The title or name of the item.
@@ -71,7 +47,7 @@ namespace ItemServiceAPI.Models
         /// <summary>
         /// The estimated value of the item.
         /// </summary>
-        [JsonPropertyName("vurdertPrice")]
-        public double VurdertPrice { get; set; }
+        [JsonPropertyName("vurderetPrice")]
+        public double VurderetPrice { get; set; }
     }
 }

@@ -95,6 +95,8 @@ namespace Services
                 throw; // Rethrow the exception
             }
         }
+
+        /*
         public Task<List<Item>> GetAuctionableItems(DateTime currentDateTime)
         {
             try
@@ -108,7 +110,7 @@ namespace Services
                 _logger.LogError("Error fetching auctionable items: {0}", ex.Message);
                 throw;
             }
-        }
+        }*/
 
         public Task<List<Item>> GetItemsByOwnerId(string ownerId)
         {
@@ -139,5 +141,6 @@ namespace Services
             }
         }
 
+        
     }
 }

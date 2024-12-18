@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using ItemServiceAPI.Services;
 using ItemServiceAPI.Models;
+using Microsoft.AspNetCore.Authorization;
 
 
 
@@ -23,6 +24,7 @@ public class ItemController : ControllerBase
         _iItemDbRepository = iItemDbRepository;
     }
 
+    [Authorize]
     [HttpGet("{id}")]
     public async Task<IActionResult> GetItem(string id) // ændre it til itemId i hele controlleren
     {
@@ -38,6 +40,7 @@ public class ItemController : ControllerBase
         return Ok(item); // Returnerer ok med item
     }
 
+    [Authorize]
     [HttpGet("all")]
     public async Task<IActionResult> GetAllItems()
     {
@@ -64,6 +67,7 @@ public class ItemController : ControllerBase
         }
     }
 
+    [Authorize]
     [HttpPost]
     public async Task<IActionResult> CreateItem(Item item)
     {
@@ -95,7 +99,7 @@ public class ItemController : ControllerBase
         }
     }
 
-
+    [Authorize]
     [HttpPut("{id}")]
     public async Task<IActionResult> UpdateItem(string id, Item item)
     {
@@ -135,6 +139,7 @@ public class ItemController : ControllerBase
         }
     }
    
+    [Authorize]
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteItem(string id)
     {
@@ -158,62 +163,8 @@ public class ItemController : ControllerBase
             return StatusCode(500, "An error occurred while deleting the item.");
         }
     }
-/*
-    [HttpGet("auctionable")]
-    public async Task<IActionResult> GetAuctionableItems()
-    {
-        try
-        {
-            var now = DateTime.UtcNow;
-            var now2 = new DateTime(2024, 12, 4, 12, 0, 0); // Fast dato for test
-
-             //var now2 = new DateTime(2024, 11, 04); // Fast dato for test
-            var auctionableItems = await _iItemDbRepository.GetAuctionableItems(new DateTime(2024, 12, 4, 12, 0, 0));
-
-            if (auctionableItems == null || !auctionableItems.Any())
-            {
-                _logger.LogInformation("No auctionable items found.");
-                return Ok(new List<Item>()); // Returnerer tom liste med 200 OK
-            }
-
-            _logger.LogInformation($"{auctionableItems.Count} auctionable items found.");
-            return Ok(auctionableItems);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "An error occurred while fetching auctionable items.");
-            return StatusCode(500, "An error occurred while processing your request.");
-        }
-    }
-    */
-    /*
-    [HttpGet("auctionable")]
-    public async Task<IActionResult> GetAuctionableItems()
-    {
-        try
-        {
-            var now = DateTimeOffset.UtcNow;
-            // var now = new DateTime(2024, 11, 25, 12, 0, 0); // Fast dato for test
-            var auctionableItems = await _iItemDbRepository.GetAuctionableItems(now.DateTime);
-
-            if (auctionableItems == null || !auctionableItems.Any())
-            {
-                _logger.LogInformation("No auctionable items found.");
-                return Ok(new List<Item>()); // Returnerer tom liste med 200 OK
-            }
-
-            _logger.LogInformation($"{auctionableItems.Count} auctionable items found.");
-            return Ok(auctionableItems);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "An error occurred while fetching auctionable items.");
-            return StatusCode(500, "An error occurred while processing your request.");
-        }
-    }
-*/
-
-
+    
+    [Authorize]
     [HttpGet("owner/{ownerId}")]
     public async Task<IActionResult> GetItemsByOwnerId(string ownerId)
     {

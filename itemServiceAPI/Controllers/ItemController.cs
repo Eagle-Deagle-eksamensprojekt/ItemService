@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using ItemServiceAPI.Services;
 using ItemServiceAPI.Models;
 using Microsoft.AspNetCore.Authorization;
+using System.Diagnostics;
 
 
 
@@ -24,6 +25,19 @@ public class ItemController : ControllerBase
         _iItemDbRepository = iItemDbRepository;
     }
 
+    [AllowAnonymous]
+    [HttpGet("version")]
+        public async Task<IActionResult> GetVersion()
+        {
+            var properties = new Dictionary<string, string>();
+
+            var ver = FileVersionInfo.GetVersionInfo(
+                typeof(Program).Assembly.Location).ProductVersion ?? "N/A";
+            properties.Add("version", ver);
+
+            return Ok(new {properties});
+        }
+
     [Authorize]
     [HttpGet("{id}")]
     public async Task<IActionResult> GetItem(string id) // ændre it til itemId i hele controlleren
@@ -40,7 +54,7 @@ public class ItemController : ControllerBase
         return Ok(item); // Returnerer ok med item
     }
 
-    [Authorize]
+    [AllowAnonymous]
     [HttpGet("all")]
     public async Task<IActionResult> GetAllItems()
     {

@@ -13,14 +13,14 @@ namespace Services
         private readonly IMongoCollection<Item> _itemCollection;
         private readonly ILogger<ItemMongoDBService> _logger;
 
-        public ItemMongoDBService(ILogger<ItemMongoDBService> logger, IConfiguration configuration)
+        public ItemMongoDBService(ILogger<ItemMongoDBService> logger, string mongoConnectionString, IConfiguration configuration)
         {
             _logger = logger;
 
-            var connectionString = configuration["MongoConnectionString"] ?? "<blank>";
+            var connectionString = mongoConnectionString ?? throw new Exception("MongoConnectionString is missing");
             var databaseName = configuration["DatabaseName"] ?? "<blank>";
             var collectionName = configuration["CollectionName"] ?? "<blank>";
-            
+
             _logger.LogInformation($"Connecting to MongoDB using: {connectionString}");
             _logger.LogInformation($"Using database: {databaseName}");
             _logger.LogInformation($"Using collection: {collectionName}");
@@ -35,7 +35,7 @@ namespace Services
             catch (Exception ex)
             {
                 _logger.LogError("Failed to connect to MongoDB: {0}", ex.Message);
-                throw; 
+                throw;
             }
         }
 

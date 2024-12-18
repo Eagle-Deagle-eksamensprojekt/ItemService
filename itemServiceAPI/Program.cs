@@ -44,6 +44,15 @@ var vaultClient = new VaultClient(vaultClientSettings);
 var kv2Secret = await vaultClient.V1.Secrets.KeyValue.V2.ReadSecretAsync(path: "Secrets", mountPoint: "secret");
 var jwtSecret = kv2Secret.Data.Data["jwtSecret"]?.ToString() ?? throw new Exception("jwtSecret not found in Vault.");
 var jwtIssuer = kv2Secret.Data.Data["jwtIssuer"]?.ToString() ?? throw new Exception("jwtIssuer not found in Vault.");
+var mongoConnectionString = kv2Secret.Data.Data["MongoConnectionString"]?.ToString() ?? throw new Exception("MongoConnectionString not found in Vault.");
+
+// Register ItemMongoDBService
+builder.Services.AddSingleton<IItemDbRepository>(sp =>
+{
+    var logger = sp.GetRequiredService<ILogger<ItemMongoDBService>>();
+    var configuration = sp.GetRequiredService<IConfiguration>();
+    return new ItemMongoDBService(logger, mongoConnectionString, configuration);
+});
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>

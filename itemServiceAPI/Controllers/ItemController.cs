@@ -1,12 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
-using System;
 using ItemServiceAPI.Services;
 using ItemServiceAPI.Models;
-using System.Collections.Generic;
-using System.Linq;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using System.Data;
+
 
 
 
@@ -79,7 +74,7 @@ public class ItemController : ControllerBase
         }
 
         // Conflict check
-        var itemConflict = await _iItemDbRepository.GetItemById(item.Id); // Tjekker om item allerede findes
+        var itemConflict = await _iItemDbRepository.GetItemById(item.Id!); // Tjekker om item allerede findes
         if (itemConflict != null)
         {
             _logger.LogWarning("An item with the same ID already exists.");  

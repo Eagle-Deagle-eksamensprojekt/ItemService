@@ -1,5 +1,0 @@
-Pakker der er tilføjet:
-
-
-dotnet add package NLog.Targets.Loki --version 2.2.0
-dotnet add package NLog.Web.AspNetCore --version 5.3.15

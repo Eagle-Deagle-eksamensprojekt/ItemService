@@ -5,8 +5,6 @@ using Microsoft.AspNetCore.Authorization;
 using System.Diagnostics;
 
 
-
-
 namespace ItemServiceAPI.Controllers;
 
 [ApiController]

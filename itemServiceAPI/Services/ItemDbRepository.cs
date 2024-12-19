@@ -96,22 +96,6 @@ namespace Services
             }
         }
 
-        /*
-        public Task<List<Item>> GetAuctionableItems(DateTime currentDateTime)
-        {
-            try
-            {
-                var auctionableItems = _itemCollection.Find(i => i.StartAuctionDateTime <= currentDateTime && i.EndAuctionDateTime >= currentDateTime).ToList(); // Find all items where the auction is active
-                _logger.LogInformation($"{auctionableItems.Count} auctionable items found.");
-                return Task.FromResult(auctionableItems); // Return the auctionable items
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError("Error fetching auctionable items: {0}", ex.Message);
-                throw;
-            }
-        }*/
-
         public Task<List<Item>> GetItemsByOwnerId(string ownerId)
         {
             try
@@ -126,6 +110,7 @@ namespace Services
                 throw;  // Rethrow the exception
             }
         }
+
         public Task<bool> UpdateItem(Item item)
         {
             try
@@ -140,7 +125,5 @@ namespace Services
                 throw;
             }
         }
-
-        
     }
 }

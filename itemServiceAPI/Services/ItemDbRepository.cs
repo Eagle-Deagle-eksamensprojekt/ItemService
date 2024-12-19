@@ -13,14 +13,14 @@ namespace Services
         private readonly IMongoCollection<Item> _itemCollection;
         private readonly ILogger<ItemMongoDBService> _logger;
 
-        public ItemMongoDBService(ILogger<ItemMongoDBService> logger, IConfiguration configuration)
+        public ItemMongoDBService(ILogger<ItemMongoDBService> logger, string mongoConnectionString, IConfiguration configuration)
         {
             _logger = logger;
 
-            var connectionString = configuration["MongoConnectionString"] ?? "<blank>";
+            var connectionString = mongoConnectionString ?? throw new Exception("MongoConnectionString is missing");
             var databaseName = configuration["DatabaseName"] ?? "<blank>";
             var collectionName = configuration["CollectionName"] ?? "<blank>";
-            
+
             _logger.LogInformation($"Connecting to MongoDB using: {connectionString}");
             _logger.LogInformation($"Using database: {databaseName}");
             _logger.LogInformation($"Using collection: {collectionName}");
@@ -35,7 +35,7 @@ namespace Services
             catch (Exception ex)
             {
                 _logger.LogError("Failed to connect to MongoDB: {0}", ex.Message);
-                throw; 
+                throw;
             }
         }
 
@@ -96,22 +96,6 @@ namespace Services
             }
         }
 
-        /*
-        public Task<List<Item>> GetAuctionableItems(DateTime currentDateTime)
-        {
-            try
-            {
-                var auctionableItems = _itemCollection.Find(i => i.StartAuctionDateTime <= currentDateTime && i.EndAuctionDateTime >= currentDateTime).ToList(); // Find all items where the auction is active
-                _logger.LogInformation($"{auctionableItems.Count} auctionable items found.");
-                return Task.FromResult(auctionableItems); // Return the auctionable items
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError("Error fetching auctionable items: {0}", ex.Message);
-                throw;
-            }
-        }*/
-
         public Task<List<Item>> GetItemsByOwnerId(string ownerId)
         {
             try
@@ -126,6 +110,7 @@ namespace Services
                 throw;  // Rethrow the exception
             }
         }
+
         public Task<bool> UpdateItem(Item item)
         {
             try
@@ -140,7 +125,5 @@ namespace Services
                 throw;
             }
         }
-
-        
     }
 }

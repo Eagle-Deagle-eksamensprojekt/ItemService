@@ -30,19 +30,19 @@ namespace ItemServiceAPI.Models
         /// A detailed description of the item.
         /// </summary>
         [JsonPropertyName("description")]
-        public string Description { get; set; }
+        public string? Description { get; set; }
 
         /// <summary>
         /// The ID of the user who owns this item (must reference a user with isSeller = true).
         /// </summary>
         [JsonPropertyName("ownerId")]
-        public string OwnerId { get; set; }
+        public string? OwnerId { get; set; }
 
         /// <summary>
         /// The title or name of the item.
         /// </summary>
         [JsonPropertyName("title")]
-        public string Title { get; set; }
+        public string? Title { get; set; }
 
         /// <summary>
         /// The estimated value of the item.

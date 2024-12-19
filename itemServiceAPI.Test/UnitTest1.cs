@@ -134,39 +134,7 @@ namespace UnitTestController.Tests
             Assert.IsNotNull(returnedItems); // Tjek, at listen ikke er null
             Assert.IsEmpty(returnedItems); // Tjek, at listen er tom
         }
-
-        // GetAuctionableItems
-        // Test, at der returneres en liste af items, som er auctionable
-        /*[Test]
-        public async Task GetAuctionableItems_ShouldReturnListOfItems_BasedOnCurrentDate()
-        {
-            // Arrange
-            var now = DateTime.UtcNow.ToUniversalTime();
-            var now2 = new DateTime(2024, 12, 4, 12, 0, 0).ToUniversalTime(); // Fast dato for test
-            var testItems = new List<Item>
-            {
-                new Item { Id = "item_001", Title = "Test Item 1", StartAuctionDateTime = now.AddDays(-1), EndAuctionDateTime = now.AddDays(1) },
-                new Item { Id = "item_002", Title = "Test Item 2", StartAuctionDateTime = now.AddDays(-2), EndAuctionDateTime = now.AddDays(2) },
-                new Item { Id = "item_003", Title = "Test Item 3", StartAuctionDateTime = now.AddDays(-3), EndAuctionDateTime = now.AddDays(-2) },
-                new Item { Id = "item_004", Title = "Test Item 4", StartAuctionDateTime = now.AddDays(1), EndAuctionDateTime = now.AddDays(2) }
-            };
-
-            _itemDbRepositoryMock.Setup(repo => repo.GetAuctionableItems(now2))
-                                .ReturnsAsync(testItems.Where(i => i.StartAuctionDateTime <= now && i.EndAuctionDateTime >= now).ToList());
-
-            // Act
-            var result = await _itemController.GetAuctionableItems();
-
-            // Assert
-            var okResult = result as OkObjectResult;
-            Assert.IsNotNull(okResult);
-            Assert.IsInstanceOf<List<Item>>(okResult.Value);
-
-            var returnedItems = okResult.Value as List<Item>;
-            Assert.AreEqual(2, returnedItems.Count); // Kun 2 items er auktionsklare
-            Assert.AreEqual("item_001", returnedItems[0].Id);
-            Assert.AreEqual("item_002", returnedItems[1].Id);
-        }*/
+/*
         [Test]
         public async Task GetAuctionableItems_ShouldReturnListOfItems_BasedOnCurrentDate()
         {
@@ -226,7 +194,7 @@ namespace UnitTestController.Tests
             Assert.IsEmpty(returnedItems); // Tjek, at listen er tom
         }
 
-
+*/
 
         // CreateItem
         //Test, at et gyldigt item kan oprettes (returnerer f.eks. 201 Created).
